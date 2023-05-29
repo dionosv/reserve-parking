@@ -29,6 +29,11 @@ const router = createRouter({
       name : 'decide',
       component: () => import('../views/decide.vue')
     },
+
+    // {
+    //   path:'/park/',
+    //   name : 'Detail'
+    // }
     {
       path: '/:pathMatch(.*)*',
       redirect: '/'

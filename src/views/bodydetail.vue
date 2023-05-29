@@ -2,9 +2,26 @@
     <div class="content" v-if="render">
         <div class="greeting">
             <h2>Hello, {{ displayname }}</h2>
-            <h3>Welcome to reserve parking</h3>
-            <img :src="generateqr" alt="" />
-            <h3>{{ this.id }}</h3>
+            <h4>Welcome to reserve parking</h4>
+            <div class="masukan" v-if="msk">
+                <h3 :style="{ color: textColor }">Input vehicle number</h3>
+
+                <div class="flexbox">
+                    <input type="text" name="" id="aa" placeholder="D" v-model="plat1" :maxlength=2>
+                    <input type="text" name="" id="aa" placeholder="10" v-model="plat2" :maxlength=4>
+                    <input type="text" name="" id="aa" placeholder="N" v-model="plat3" :maxlength=3>
+                </div>
+
+                <button type="button" class="btn btn-dark" @click="okay">Show barcode</button>
+        </div>
+            <div class="render" v-if="trender">
+                <h2>Qr code</h2>
+                <img :src="generateqr" alt="" v-if="trender"/>
+                <h3>{{ this.id }}</h3> 
+                <br>
+                <h3>{{ this.plat1.toUpperCase() }} {{ this.plat2 }} {{ this.plat3.toUpperCase() }}</h3> 
+
+            </div>           
         </div>
     </div>
 
@@ -27,12 +44,19 @@ export default {
             datastate : false,
             render :false,
             id:null,
+            plat1:null,
+            plat2:null,
+            plat3:null,
+            trender:false,
             qrcode: new QRious({ size: 200 }),
+            btnx :true,
+            textColor:"black",
+            msk:true
         }
     },
     computed: {
         generateqr() {
-            this.qrcode.value = "https://reserve-parking.vercel.app/park/"+this.id;
+            this.qrcode.value = "https://reserve-parking.vercel.app/park/user:"+this.id+"/plate:"+this.plat1.toUpperCase()+"-"+this.plat2+"-"+this.plat3.toUpperCase();
             return this.qrcode.toDataURL();
         },
   },
@@ -49,6 +73,17 @@ export default {
             });
             this.render = true
         },
+
+        okay(){
+            if(this.plat1 != null || this.plat2 != null || this.plat3 != null){
+                this.trender = !this.trender
+                this.btnx = !this.btnx
+                this.msk = !this.msk
+            }
+            else{
+                this.textColor='red'
+            }
+        }
         
     },
     mounted() {
@@ -66,6 +101,13 @@ export default {
     flex-direction: column; 
 }
 
+.masukan{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
 .avoid img{
     width:150px;
     margin-top :20px;
@@ -83,6 +125,19 @@ export default {
 
 @media (max-width: 777px) {
 
+    .flexbox{
+        display: flex;
+        justify-content: center;  /* Align items horizontally */
+        align-items: center;      /* Align items vertically */
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+    #aa{
+        margin-left: 7px;
+        margin-right: 7px;
+        width: 50px;
+    }
     .content{display: block;}
     .avoid{display : none;}
     .square{
@@ -100,7 +155,16 @@ export default {
         margin-top: 20px;
         margin-bottom: 20px;
     }
+    .masukan btn{
+        display: flex;
+        justify-content: center;
+    }
 
+    .render h2{
+        text-align: center;
+        font-size: 10px;
+        margin-top : 25px;
+    }
     .allblock{
         display: flex;
         align-items: center;
@@ -115,6 +179,12 @@ export default {
         font-family: "Inter-Bold";
         font-size: 13px;
     }
+
+    .render img{
+        display: flex;
+        justify-content: center;
+        align-content: center;
+    }
     .greeting{
         display: flex;
         align-items: center;
@@ -126,12 +196,13 @@ export default {
 
     .greeting h2{
         font-family: "Inter-Bold";
-        font-size : 20px
+        font-size : 30px
     }
 
     .greeting h3{
         font-family: "Inter-Regular";
         font-size: 15px;
+        text-align: center;
     }
 }
 </style>

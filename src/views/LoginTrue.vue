@@ -38,7 +38,7 @@ export default {
             displayname : "",
             user_email : "",
             state : false,
-            render : false
+            render : false,
         }
     },
 
@@ -59,8 +59,6 @@ export default {
             });
             this.render = true
         },
-
-
     },
 
     mounted() {

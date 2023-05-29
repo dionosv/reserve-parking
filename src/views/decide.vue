@@ -1,6 +1,5 @@
 <template>
 <bodydetail v-if="!alreadyinputdata"></bodydetail>
-
 </template>
 
 <script>

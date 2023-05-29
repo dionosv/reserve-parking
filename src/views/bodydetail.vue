@@ -3,6 +3,8 @@
         <div class="greeting">
             <h2>Hello, {{ displayname }}</h2>
             <h3>Welcome to reserve parking</h3>
+            <img :src="generateqr" alt="" />
+            <h3>{{ this.id }}</h3>
         </div>
     </div>
 
@@ -14,6 +16,7 @@
 </template>
 
 <script>
+import QRious from 'qrious';
 import { getemail } from './func/all';
 import { getDocs, query, collection, where} from "firebase/firestore";
 import {db} from'./func/firedata'
@@ -22,9 +25,18 @@ export default {
         return {
             displayname : 'User',
             datastate : false,
-            render :false
+            render :false,
+            id:null,
+            qrcode: new QRious({ size: 200 }),
         }
     },
+    computed: {
+        generateqr() {
+            this.qrcode.value = "https://reserve-parking.vercel.app/park/"+this.id;
+            return this.qrcode.toDataURL();
+        },
+  },
+
     methods: {
         async detailprocedure(email) {
             const userdataRef = collection(db, "userdata");
@@ -33,9 +45,11 @@ export default {
             querySnapshot.forEach((doc) => {
                 this.displayname = doc.data().nama
                 this.datastate = doc.data().detaildata
+                this.id = doc.id
             });
             this.render = true
         },
+        
     },
     mounted() {
         this.detailprocedure(getemail())
@@ -81,6 +95,10 @@ export default {
         display: grid;
         place-items: center;
         color: #13386b;
+    }
+    .greeting img{
+        margin-top: 20px;
+        margin-bottom: 20px;
     }
 
     .allblock{

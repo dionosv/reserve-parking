@@ -30,10 +30,12 @@ const router = createRouter({
       component: () => import('../views/decide.vue')
     },
 
-    // {
-    //   path:'/park/',
-    //   name : 'Detail'
-    // }
+    {
+      path:'/park/:id',
+      name : 'UserDetail',
+      component : () => import('../views/UserDetail.vue')
+    },
+
     {
       path: '/:pathMatch(.*)*',
       redirect: '/'

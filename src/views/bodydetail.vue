@@ -20,7 +20,6 @@
                 <h3>{{ this.id }}</h3> 
                 <br>
                 <h3>{{ this.plat1.toUpperCase() }} {{ this.plat2 }} {{ this.plat3.toUpperCase() }}</h3> 
-
             </div>           
         </div>
     </div>
@@ -34,14 +33,13 @@
 
 <script>
 import QRious from 'qrious';
-import { getemail } from './func/all';
-import { getDocs, query, collection, where} from "firebase/firestore";
+import { getemail, getuserid } from './func/all';
+import { getDocs, query, collection, where,doc, updateDoc} from "firebase/firestore";
 import {db} from'./func/firedata'
 export default {
     data() {
         return {
             displayname : 'User',
-            datastate : false,
             render :false,
             id:null,
             plat1:null,
@@ -56,7 +54,7 @@ export default {
     },
     computed: {
         generateqr() {
-            this.qrcode.value = "https://reserve-parking.vercel.app/park/user:"+this.id+"/plate:"+this.plat1.toUpperCase()+"-"+this.plat2+"-"+this.plat3.toUpperCase();
+            this.qrcode.value = "https://reserve-parking.vercel.app/park/"+this.id
             return this.qrcode.toDataURL();
         },
   },
@@ -68,7 +66,9 @@ export default {
             const querySnapshot = await getDocs(q);
             querySnapshot.forEach((doc) => {
                 this.displayname = doc.data().nama
-                this.datastate = doc.data().detaildata
+                this.plat1 = doc.data().dataplate.plate.plat1
+                this.plat2 = doc.data().dataplate.plate.plat2
+                this.plat3 = doc.data().dataplate.plate.plat3
                 this.id = doc.id
             });
             this.render = true
@@ -79,12 +79,25 @@ export default {
                 this.trender = !this.trender
                 this.btnx = !this.btnx
                 this.msk = !this.msk
+                this.upload()
             }
             else{
                 this.textColor='red'
             }
-        }
-        
+        },
+        async upload(){
+            const tmp = doc(db, "userdata", getuserid());
+            await updateDoc(tmp, {
+                dataplate:{
+                    plate : {
+                        plat1 : this.plat1.toUpperCase(),
+                        plat2 : this.plat2.toUpperCase(),
+                        plat3 : this.plat3.toUpperCase()
+                    },
+                    last_accessed :  new Date().toLocaleString()
+                }
+            });
+        },        
     },
     mounted() {
         this.detailprocedure(getemail())
@@ -196,7 +209,7 @@ export default {
 
     .greeting h2{
         font-family: "Inter-Bold";
-        font-size : 30px
+        font-size : 25px
     }
 
     .greeting h3{

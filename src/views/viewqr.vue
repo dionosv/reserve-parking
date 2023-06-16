@@ -1,35 +1,38 @@
 <template>
     <div class="content" v-if="render">
         <div class="greeting">
-            <h2>Hello, {{ displayname }}</h2>
-            <h4>Welcome to reserve parking</h4>
-            <div class="masukan" v-if="msk">
-                <h3 :style="{ color: textColor }">Vehicle number</h3>
-
-                <div class="flexbox">
-                    <input type="text" name="" id="aa" placeholder="D" v-model="plat1" :maxlength=2>
-                    <input type="text" name="" id="aa" placeholder="10" v-model="plat2" :maxlength=4>
-                    <input type="text" name="" id="aa" placeholder="N" v-model="plat3" :maxlength=3>
+            <Transition>
+                <div class="alert alert-warning" role="alert" v-if="peringatan" >
+                    You're already booked a parking spot
                 </div>
-
-                <h3 :style="{ color: textColor }">Parking Location</h3>
-                <select v-model="selected">
-                    <option disabled value="">Please select one</option>
-                    <option>Mall A</option>
-                    <option>Mall B</option>
-                </select>
-
-
-                <button type="button" class="btn btn-dark" @click="okay">Show barcode</button>
-        </div>
-            <div class="render" v-if="trender">
-                <h2>Qr code</h2>
-                <img :src="generateqr" alt="" v-if="trender"/>
+            </Transition>
+            <h2>Hello, {{ displayname }}</h2>
+            <div class="render">
+                <img :src="generateqr" alt=""/>
                 <h3>{{ this.id }}</h3> 
                 <br>
-                <h3>{{ this.plat1.toUpperCase() }} {{ this.plat2 }} {{ this.plat3.toUpperCase() }}</h3> 
+                <div class="plat">
+                    <h3>{{ this.plat1.toUpperCase() }} {{ this.plat2 }} {{ this.plat3.toUpperCase() }}</h3> 
+                </div>
                 <br>
                 <h3>Location : {{ this.selected }}</h3>
+                <br>
+                <h4 v-if="timerender">valid until : {{ countdown }}</h4>
+                <Transition>
+                    <div class="tengah">
+                        <button type="button" class="btn btn-danger" @click="c1" v-if="!cancelx">Cancel Booking</button>
+                    </div>
+                </Transition>
+                <Transition>
+                    <div class="reallycancel" v-if="cancelx">
+                        Are you really want to cancel this booking ?
+                        <div class="centerbtn">
+                            <button type="button" class="btn btn-danger" @click="c2">Yes</button>
+                            <button type="button" class="btn btn-secondary" @click="c1">No</button>
+                        </div>
+                    </div>
+                </Transition>
+
             </div>           
         </div>
     </div>
@@ -55,13 +58,25 @@ export default {
             plat1:null,
             plat2:null,
             plat3:null,
-            btnx :true,
+            trender:false,
+            qrcode: new QRious({ size: 200 }),
             textColor:"black",
             msk:true,
-            selected:null
+            selected:null,
+            countdown: null,
+            peringatan : true,
+            time : null,
+            countdown : 0,
+            timerender : false,
+            cancelx:false
         }
     },
-
+    computed: {
+        generateqr() {
+            this.qrcode.value = "https://reserve-parking.vercel.app/park/"+this.id
+            return this.qrcode.toDataURL();
+        },
+  },
 
     methods: {
         async detailprocedure(email) {
@@ -73,41 +88,60 @@ export default {
                 this.plat1 = doc.data().dataplate.plate.plat1
                 this.plat2 = doc.data().dataplate.plate.plat2
                 this.plat3 = doc.data().dataplate.plate.plat3
+                this.selected = doc.data().parking_detail.location
+                this.time = doc.data().parking_detail.last_accessed
                 this.id = doc.id
             });
             this.render = true
+            this.startCountdown()
         },
 
-        okay(){
-            if(this.plat1 != null && this.plat2 != null && this.plat3 != null && this.selected != null){
-                    this.upload()
-            }
-            else{
-                this.textColor='red'
-            }
-        },
-        async upload(){
+        async cancel(){
             const tmp = doc(db, "userdata", getuserid());
             await updateDoc(tmp, {
-                dataplate:{
-                    plate : {
-                        plat1 : this.plat1.toUpperCase(),
-                        plat2 : this.plat2.toUpperCase(),
-                        plat3 : this.plat3.toUpperCase()
-                    },
-                    
-                },
                 parking_detail:{
-                    last_accessed :  new Date().toLocaleString(),
-                    location : this.selected,
-                    parking_status : 1 //1 : booked, 2 : sudah pakai , 3.cancelled
+                    parking_status : 4
                 }
             });
             window.location.reload();
-        },        
+        },
+
+        c1(){
+            this.cancelx = !this.cancelx
+        },
+
+        async c2(){
+            await this.cancel();
+        },
+
+        show_alert(){
+            setTimeout(() => {
+               this.peringatan = false
+            }, 5000);
+        },
+        async out_oftime(menit,detik){
+            if(menit <= 0 && detik <= 0){
+                await this.cancel();
+            }
+        },
+        startCountdown() {
+            const targetTime = new Date(this.time).getTime();
+            const newTargetTime = new Date(targetTime + 30 * 60000).getTime();
+            this.timerender = true
+            setInterval(() => {
+                const now = new Date().getTime();
+                const distance = now - newTargetTime;
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60) * -1);
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000 * -1);
+                this.out_oftime(minutes,seconds)
+                this.countdown = `${minutes}m ${seconds}s`;
+                
+            }, 1000);
+    }        
     },
     mounted() {
         this.detailprocedure(getemail())
+        this.show_alert()
     },
 }
 </script>
@@ -159,6 +193,17 @@ export default {
     font-size: 20px;
 }
 
+/* we will explain what these classes do next! */
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 1s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
 
 @media (max-width: 777px) {
 
@@ -175,6 +220,11 @@ export default {
         margin-right: 7px;
         width: 50px;
     }
+    .reallycancel{
+        width: 200px;
+        font-family: 'Inter-Regular';
+        text-align: center;
+    }
     .content{display: block;}
     .avoid{display : none;}
     .square{
@@ -187,6 +237,12 @@ export default {
         display: grid;
         place-items: center;
         color: #13386b;
+    }
+    .centerbtn{
+        display: flex;
+        justify-content:space-evenly;
+        margin-top: 15px;
+        margin-bottom: 15px;
     }
     .greeting img{
         margin-top: 20px;
@@ -201,6 +257,11 @@ export default {
         text-align: center;
         font-size: 10px;
         margin-top : 25px;
+    }
+    .render h4{
+        font-family: 'Inter-Regular';
+        font-size: 20px;
+        text-align: center;
     }
     .allblock{
         display: flex;
@@ -241,5 +302,25 @@ export default {
         font-size: 15px;
         text-align: center;
     }
+    .plat{
+        background: black;
+        border-radius: 10px;
+        padding-top: 15px;
+        padding-bottom: 11px;
+    }
+
+    .plat h3{
+        font-family: 'Inter-Bold';
+        color : white;
+        font-size: 27px;
+    }
+    .tengah{
+        margin-top: 35px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Inter-Regular';
+    }
+    
 }
 </style>

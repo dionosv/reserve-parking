@@ -37,6 +37,12 @@ const router = createRouter({
     },
 
     {
+      path:'/view',
+      name : 'ShowQR',
+      component : () => import('../views/viewqr.vue')
+    },
+
+    {
       path: '/:pathMatch(.*)*',
       redirect: '/'
     },

@@ -12,6 +12,9 @@
             Name : {{ this.displayname }}
         </h3>
         <h3>Id : {{ this.userid }}</h3>
+        <h3>Place : {{this.place}}</h3>
+        <h3>Time : {{ currentTimestamp }}</h3>
+        
         
         
     </div>
@@ -38,7 +41,8 @@ export default {
             userid:null,
             displayname : null,
             found : false,
-            currentTimestamp: null
+            currentTimestamp: null,
+            place : 'A1'
         }
     },
 
@@ -46,7 +50,6 @@ export default {
         this.userid = this.$route.params.id;
         this.detailprocedure(this.userid)
         this.updateTimestamp();
-        setInterval(this.updateTimestamp, 500);
     },
     methods: {
         async detailprocedure(docId) {
@@ -58,6 +61,7 @@ export default {
                 this.plat1 = docSnap.data().dataplate.plate.plat1
                 this.plat2 = docSnap.data().dataplate.plate.plat2
                 this.plat3 = docSnap.data().dataplate.plate.plat3
+                this.place = docSnap.data().parking_detail.location
                 console.log("Data found !")
                 this.found = true
             } else {

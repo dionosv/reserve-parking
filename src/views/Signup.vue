@@ -137,6 +137,13 @@
                         nama : this.nama,
                         username : this.uname,
                         tgl_lahir : this.tgl,
+                        dataplate:{
+                        plate : {
+                            plat1 : "D",
+                            plat2 : "10",
+                            plat3 : "N"
+                        },
+                },
                         parking_detail:{
                             parking_status : 4
                         }

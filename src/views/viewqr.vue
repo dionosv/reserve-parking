@@ -46,7 +46,7 @@
 
 <script>
 import QRious from 'qrious';
-import { getemail, getuserid } from './func/all';
+import { add_car, getemail, getuserid } from './func/all';
 import { getDocs, query, collection, where,doc, updateDoc} from "firebase/firestore";
 import {db} from'./func/firedata'
 export default {
@@ -68,7 +68,10 @@ export default {
             time : null,
             countdown : 0,
             timerender : false,
-            cancelx:false
+            cancelx:false,
+            slotid : null,
+            slot : 0,
+            pending : 0
         }
     },
     computed: {
@@ -96,6 +99,22 @@ export default {
             this.startCountdown()
         },
 
+        async minus_slot(){
+            const userdataRef = collection(db, "location");
+            const q = query(userdataRef, where("nama", "==", this.selected));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                this.slot = doc.data().slot
+                this.pending = doc.data().pending
+                this.slotid = doc.id
+            });
+            const tmp2 = doc(db, "location", this.slotid);
+            await updateDoc(tmp2, {
+                pending : this.pending - 1,
+                slot : this.slot + 1,
+            });
+        },
+
         async cancel(){
             const tmp = doc(db, "userdata", getuserid());
             await updateDoc(tmp, {
@@ -103,6 +122,8 @@ export default {
                     parking_status : 4
                 }
             });
+            // await this.minus_slot
+            await add_car(this.selected)
             window.location.reload();
         },
 

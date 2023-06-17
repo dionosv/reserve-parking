@@ -5,32 +5,23 @@
             <h4>Welcome to reserve parking</h4>
             <div class="masukan" v-if="msk">
                 <h3 :style="{ color: textColor }">Vehicle number</h3>
-
                 <div class="flexbox">
                     <input type="text" name="" id="aa" placeholder="D" v-model="plat1" :maxlength=2>
                     <input type="text" name="" id="aa" placeholder="10" v-model="plat2" :maxlength=4>
                     <input type="text" name="" id="aa" placeholder="N" v-model="plat3" :maxlength=3>
                 </div>
-
                 <h3 :style="{ color: textColor }">Parking Location</h3>
-                <select v-model="selected">
+                <select v-model="selected" @change="getslot">
                     <option disabled value="">Please select one</option>
                     <option>Mall A</option>
                     <option>Mall B</option>
                 </select>
-
-
-                <button type="button" class="btn btn-dark" @click="okay">Show barcode</button>
-        </div>
-            <div class="render" v-if="trender">
-                <h2>Qr code</h2>
-                <img :src="generateqr" alt="" v-if="trender"/>
-                <h3>{{ this.id }}</h3> 
-                <br>
-                <h3>{{ this.plat1.toUpperCase() }} {{ this.plat2 }} {{ this.plat3.toUpperCase() }}</h3> 
-                <br>
-                <h3>Location : {{ this.selected }}</h3>
-            </div>           
+                <div id="slotparkir" v-if="slotrender">
+                    <h2>{{ this.slot }}</h2>
+                    <h3>Available</h3>
+                </div>
+                <button type="button" class="btn btn-dark" @click="okay">Submit</button>
+        </div>           
         </div>
     </div>
 
@@ -42,7 +33,6 @@
 </template>
 
 <script>
-import QRious from 'qrious';
 import { getemail, getuserid } from './func/all';
 import { getDocs, query, collection, where,doc, updateDoc} from "firebase/firestore";
 import {db} from'./func/firedata'
@@ -58,10 +48,13 @@ export default {
             btnx :true,
             textColor:"black",
             msk:true,
-            selected:null
+            selected:null,
+            slot : 0,
+            pending : 0,
+            slotid : null,
+            slotrender : false,
         }
     },
-
 
     methods: {
         async detailprocedure(email) {
@@ -76,6 +69,18 @@ export default {
                 this.id = doc.id
             });
             this.render = true
+        },
+
+        async getslot() {
+            const userdataRef = collection(db, "location");
+            const q = query(userdataRef, where("nama", "==", this.selected));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                this.slot = doc.data().slot
+                this.pending = doc.data().pending
+                this.slotid = doc.id
+            });
+            this.slotrender = true
         },
 
         okay(){
@@ -95,7 +100,6 @@ export default {
                         plat2 : this.plat2.toUpperCase(),
                         plat3 : this.plat3.toUpperCase()
                     },
-                    
                 },
                 parking_detail:{
                     last_accessed :  new Date().toLocaleString(),
@@ -103,6 +107,13 @@ export default {
                     parking_status : 1 //1 : booked, 2 : sudah pakai , 3.cancelled
                 }
             });
+
+            const tmp2 = doc(db, "location", this.slotid);
+            await updateDoc(tmp2, {
+                pending : this.pending + 1,
+                slot : this.slot - 1,
+            });
+
             window.location.reload();
         },        
     },
@@ -157,6 +168,29 @@ export default {
 .avoid h3{
     font-family: "Inter-Regular";
     font-size: 20px;
+}
+
+#slotparkir{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+    margin-block: 15px;
+}
+
+#slotparkir > h2:nth-child(1){
+    font-family: "Inter-SemiBold";
+    font-size: 20px;
+    background: black;
+    color: white;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+#slotparkir h3{
+    font-family: "Inter-Regular";
+    font-size: 15px;
 }
 
 
@@ -217,6 +251,9 @@ export default {
         font-size: 13px;
     }
 
+    
+
+    
     .render img{
         display: flex;
         justify-content: center;

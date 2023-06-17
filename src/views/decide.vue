@@ -16,7 +16,6 @@ export default {
     data() {
         return {
             displayname : 'User',
-            alreadyinputdata : false,
             status:null,
             booked : false,
             register : false,
@@ -28,11 +27,9 @@ export default {
             const q = query(userdataRef, where("email", "==", email));
             const querySnapshot = await getDocs(q);
             querySnapshot.forEach((doc) => {
-                this.alreadyinputdata = doc.data().detaildata
                 this.status = doc.data().parking_detail.parking_status
             });
             this.cekstatus()
-            console.log(this.status)
         },
 
         cekstatus(){

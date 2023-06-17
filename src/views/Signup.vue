@@ -137,6 +137,9 @@
                         nama : this.nama,
                         username : this.uname,
                         tgl_lahir : this.tgl,
+                        parking_detail:{
+                            parking_status : 4
+                        }
                     });
                     this.green_alert("Sign Up Success, please wait redirecting to account")
                     this.signin1()

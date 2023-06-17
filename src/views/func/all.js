@@ -1,4 +1,6 @@
 import {getAuth, signOut ,signInWithEmailAndPassword} from "firebase/auth"
+import { getDocs, query, collection, where,doc, updateDoc} from "firebase/firestore";
+import {db} from'./firedata';
 import router from '@/router'
 
 export function logout(){
@@ -85,4 +87,24 @@ export async function getdata(){
     querySnapshot.forEach((doc) => {
     console.log(doc.username, " => ", doc.data());
     });
+}
+
+export async function add_car(location){
+        var slotx
+        var pendingx 
+        var slotid
+
+        const userdataRef = collection(db, "location");
+        const q = query(userdataRef, where("nama", "==", location));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            slotx = doc.data().slot
+            pendingx = doc.data().pending
+            slotid = doc.id
+        });
+        const tmp2 = doc(db, "location", slotid);
+        await updateDoc(tmp2, {
+            pending : pendingx - 1,
+            slot : slotx + 1,
+        });
 }

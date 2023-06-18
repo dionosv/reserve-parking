@@ -33,7 +33,13 @@ const router = createRouter({
     {
       path:'/park/:id',
       name : 'UserDetail',
-      component : () => import('../views/UserDetail.vue')
+      component : () => import('../views/Park.vue')
+    },
+
+    {
+      path:'/admin',
+      name : 'admin',
+      component : () => import('../views/adminpage.vue')
     },
 
     {

@@ -1,7 +1,8 @@
 <template> 
+<div class="all" v-if="state">
     <div class="kotak" id="prompt" v-if="found">
         <div class="flex">
-            <h4>Check in success</h4>
+            <h4>{{ this.message}}</h4>
             <img src="@/assets/checked.png" alt="success">
         </div>
         <h2>
@@ -12,7 +13,7 @@
         </h3>
         <h3>Id : {{ this.userid }}</h3>
         <h3>Place : {{this.place}}</h3>
-        <h3>Time : {{ currentTimestamp }}</h3>
+        <h3>Time : {{ this.waktuparkir }}</h3>
     </div>
 
     <div class="kotak2" id="prompt" v-if="!found" >
@@ -23,12 +24,14 @@
             Not found !
         </h4>
     </div>
+</div>
 </template>
 
 <script>
 import { getDoc,doc, getDocs, query, collection, where, updateDoc } from "firebase/firestore";
-
+import { getemail } from './func/all';
 import {db} from'./func/firedata'
+import router from '../router'
 
 export default {
     
@@ -42,16 +45,17 @@ export default {
             pendingx : 0,
             occupiedx : 0,
             slotid : null,
-            slotx : 0
+            slotx : 0, 
+            state : false,
+            status : 0,
+            message : 'Check In Succesfull',
+            waktuparkir : '',
         }
     },
 
     mounted() {
         this.userid = this.$route.params.id;
-        this.detailprocedure(this.userid)
-        this.updateTimestamp();
-        this.parking_adjustment()
-        this.profile_adjustment();
+        this.start_procedure()
     },
     methods: {
         async detailprocedure(docId) {
@@ -65,6 +69,8 @@ export default {
                 this.plat3 = docSnap.data().dataplate.plate.plat3
                 this.place = docSnap.data().parking_detail.location
                 this.found = true
+                this.status = docSnap.data().parking_detail.parking_status
+                this.waktuparkir =  docSnap.data().parking_detail.last_access
             } else {
                 this.displayname = "No data"
                 this.found = false
@@ -86,6 +92,18 @@ export default {
             await this.update_slot(occupied,pending,idx)
         },
 
+        async get_data(){
+            const userdataRef = collection(db, "location");
+            const q = query(userdataRef, where("nama", "==", this.place));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                occupied = doc.data().occupied
+                pending = doc.data().pending
+                idx = doc.id
+            });
+
+        },
+
         async update_slot(occupiedx,pendingx,idx){
             const tmp2 = doc(db, "location", idx);
             await updateDoc(tmp2, {
@@ -99,14 +117,36 @@ export default {
             await updateDoc(tmp, {
                 parking_detail:{
                     parking_status : 2,
-                    check_in : this.currentTimestamp
+                    last_access : this.currentTimestamp,
+                    location : this.place,
                 }
             });
         },
 
+        validate_admin(){
+            const email =  getemail()
+            if(email === "dion.hananto@binus.ac.id" || email === "admin@admin.com"){
+                this.state = true
+                return true
+            }
+            else{
+                router.push({name : 'home'})
+            }
+        },
         updateTimestamp() {
             this.currentTimestamp = new Date().toLocaleString();
         },
+
+        async start_procedure(){
+            if(this.validate_admin()){
+                await this.detailprocedure(this.userid)
+                if(this.status == 1){
+                    this.updateTimestamp();
+                    this.parking_adjustment();
+                    this.profile_adjustment();
+                }
+            }
+        }
     },
 }
 </script>

@@ -2,6 +2,7 @@
   <div class="tengah">
     <h2>Hello, {{ this.displayname }}</h2>
     <h4>You already check in Reserve Parking</h4>
+    <img :src="generateqr" alt=""/>
     <div class="detailsparkir">
         <h3>{{ this.id }}</h3>
         <h3>Plate : {{ this.plat1 }} {{ this.plat2 }} {{ this.plat3 }}</h3>
@@ -36,7 +37,8 @@
 </template>
 
 <script>
-import { add_car, getemail, getuserid } from './func/all';
+import QRious from 'qrious';
+import {getemail, getuserid } from './func/all';
 import { getDocs, query, collection, where,doc, updateDoc} from "firebase/firestore";
 import {db} from'./func/firedata'
 
@@ -61,8 +63,17 @@ export default {
             pay : false,
             slotid : null,
             textColor : '',
+            qrcode: new QRious({ size: 200 }),
         }
     },
+
+    computed: {
+        generateqr() {
+            this.qrcode.value = "https://reserve-parking.vercel.app/park/"+this.id
+            return this.qrcode.toDataURL();
+        },
+    },
+
     methods: {
         async detailprocedure(email) {
             const userdataRef = collection(db, "userdata");
@@ -229,6 +240,11 @@ export default {
     margin-top: 5px;
 }
 
+.tengah  img{
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+}
 .tengah h3{
     font-family: 'Inter-Regular';
     font-size: 16px;

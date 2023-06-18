@@ -23,6 +23,7 @@
                         <button type="button" class="btn btn-danger" @click="c1" v-if="!cancelx">Cancel Booking</button>
                     </div>
                 </Transition>
+
                 <Transition>
                     <div class="reallycancel" v-if="cancelx">
                         Are you really want to cancel this booking ?
@@ -74,12 +75,13 @@ export default {
             pending : 0
         }
     },
+
     computed: {
         generateqr() {
             this.qrcode.value = "https://reserve-parking.vercel.app/park/"+this.id
             return this.qrcode.toDataURL();
         },
-  },
+    },
 
     methods: {
         async detailprocedure(email) {
@@ -122,7 +124,6 @@ export default {
                     parking_status : 4
                 }
             });
-            // await this.minus_slot
             await add_car(this.selected)
             window.location.reload();
         },
@@ -145,6 +146,7 @@ export default {
                 await this.cancel();
             }
         },
+
         startCountdown() {
             const targetTime = new Date(this.time).getTime();
             const newTargetTime = new Date(targetTime + 30 * 60000).getTime();
@@ -156,9 +158,8 @@ export default {
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000 * -1);
                 this.out_oftime(minutes,seconds)
                 this.countdown = `${minutes}m ${seconds}s`;
-                
             }, 1000);
-    }        
+        }        
     },
     mounted() {
         this.detailprocedure(getemail())
@@ -214,7 +215,6 @@ export default {
     font-size: 20px;
 }
 
-/* we will explain what these classes do next! */
 .v-enter-active,
 .v-leave-active {
   transition: opacity 1s ease;

@@ -20,7 +20,7 @@
                     <h2>{{ this.slot }}</h2>
                     <h3>Available</h3>
                 </div>
-                <button type="button" class="btn btn-dark" @click="okay">Submit</button>
+                <button type="button" class="btn btn-dark" v-if="!full" @click="okay">Submit</button>
         </div>           
         </div>
     </div>
@@ -53,6 +53,7 @@ export default {
             pending : 0,
             slotid : null,
             slotrender : false,
+            full : false
         }
     },
 
@@ -81,6 +82,13 @@ export default {
                 this.slotid = doc.id
             });
             this.slotrender = true
+
+            if(this.slot <= 0){
+                this.full = true
+            }
+            else if(this.slot >= 0){
+                this.full = false
+            }
         },
 
         okay(){
@@ -251,9 +259,7 @@ export default {
         font-size: 13px;
     }
 
-    
 
-    
     .render img{
         display: flex;
         justify-content: center;

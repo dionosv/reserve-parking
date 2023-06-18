@@ -143,7 +143,7 @@
                             plat2 : "10",
                             plat3 : "N"
                         },
-                },
+                    },
                         parking_detail:{
                             parking_status : 4
                         }

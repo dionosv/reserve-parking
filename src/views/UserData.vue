@@ -49,7 +49,7 @@ export default {
 
         validate_admin(){
             const email =  getemail()
-            if(email === "dion.hananto@binus.ac.id"){
+            if(email === "dion.hananto@binus.ac.id" || email === "admin@admin.com"){
                 this.state = true
                 this.getdata();
             }

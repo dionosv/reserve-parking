@@ -4,19 +4,15 @@
             <h4>Check in success</h4>
             <img src="@/assets/checked.png" alt="success">
         </div>
-
         <h2>
             {{ this.plat1 }} {{ this.plat2 }} {{ this.plat3 }}
-            </h2>
+        </h2>
         <h3>
             Name : {{ this.displayname }}
         </h3>
         <h3>Id : {{ this.userid }}</h3>
         <h3>Place : {{this.place}}</h3>
         <h3>Time : {{ currentTimestamp }}</h3>
-        
-        
-        
     </div>
 
     <div class="kotak2" id="prompt" v-if="!found" >
@@ -30,8 +26,8 @@
 </template>
 
 <script>
-// import { getemail, getuserid } from './func/all';
-import { getDoc,doc} from "firebase/firestore";
+import { getDoc,doc, getDocs, query, collection, where, updateDoc } from "firebase/firestore";
+
 import {db} from'./func/firedata'
 
 export default {
@@ -42,7 +38,11 @@ export default {
             displayname : null,
             found : false,
             currentTimestamp: null,
-            place : 'A1'
+            place : 'Mall A',
+            pendingx : 0,
+            occupiedx : 0,
+            slotid : null,
+            slotx : 0
         }
     },
 
@@ -50,6 +50,8 @@ export default {
         this.userid = this.$route.params.id;
         this.detailprocedure(this.userid)
         this.updateTimestamp();
+        this.parking_adjustment()
+        this.profile_adjustment();
     },
     methods: {
         async detailprocedure(docId) {
@@ -62,13 +64,46 @@ export default {
                 this.plat2 = docSnap.data().dataplate.plate.plat2
                 this.plat3 = docSnap.data().dataplate.plate.plat3
                 this.place = docSnap.data().parking_detail.location
-                console.log("Data found !")
                 this.found = true
             } else {
                 this.displayname = "No data"
                 this.found = false
             }
         },
+
+        async parking_adjustment() {
+            var occupied
+            var pending
+            var idx
+            const userdataRef = collection(db, "location");
+            const q = query(userdataRef, where("nama", "==", this.place));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                occupied = doc.data().occupied
+                pending = doc.data().pending
+                idx = doc.id
+            });
+            await this.update_slot(occupied,pending,idx)
+        },
+
+        async update_slot(occupiedx,pendingx,idx){
+            const tmp2 = doc(db, "location", idx);
+            await updateDoc(tmp2, {
+                occupied : occupiedx + 1,
+                pending : pendingx - 1
+            });
+        },
+
+        async profile_adjustment(){
+            const tmp = doc(db, "userdata", this.userid);
+            await updateDoc(tmp, {
+                parking_detail:{
+                    parking_status : 2,
+                    check_in : this.currentTimestamp
+                }
+            });
+        },
+
         updateTimestamp() {
             this.currentTimestamp = new Date().toLocaleString();
         },
@@ -92,11 +127,13 @@ export default {
 #prompt h2{
     background: black;
     color:white;
-    padding: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px;
     font-family: 'Inter-Bold';
-    font-size: 24px;
+    font-size: 27px;
     text-align: center;
     margin-bottom: 25px;
+    border-radius: 10px;
 }
 
 .flex{
@@ -111,7 +148,6 @@ export default {
 .flex img{
     height: 49px;
     width: auto;
-    
 }
 
 .flex h4{

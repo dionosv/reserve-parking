@@ -1,6 +1,7 @@
 <template>
 <bodydetail v-if="register"></bodydetail>
 <viewqr v-if="booked"></viewqr>
+<checkin v-if="alreadycheckin"></checkin>
 </template>
 
 <script>
@@ -10,15 +11,17 @@ import {db} from'./func/firedata'
 import router from "../router"
 import bodydetail from './bodydetail.vue';
 import viewqr from './viewqr.vue';
+import checkin from './Occupied.vue';
 
 export default {
-    components : {bodydetail , viewqr},
+    components : {bodydetail , viewqr, checkin},
     data() {
         return {
             displayname : 'User',
             status:null,
             booked : false,
             register : false,
+            alreadycheckin :false
         }
     },
     methods: {
@@ -37,15 +40,19 @@ export default {
             {
                 this.booked = true
                 this.register = false
+                this.alreadycheckin = false
             }
 
             if(this.status == 2){
-                console.log("Already Parked !")
+                this.alreadycheckin = true
+                this.booked =false
+                this.register = false
             }
 
             if(this.status != 1 && this.status != 2){
                 this.register = true
                 this.booked =false
+                this.alreadycheckin = false
             }
         },
         procedure1(){

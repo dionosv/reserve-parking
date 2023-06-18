@@ -6,6 +6,7 @@
             <h3>Available : {{ this.slot_a }}</h3>
             <h3>Pending : {{ this.pending_a }}</h3>
             <h3>Occupied :{{ this.occ_a }}</h3>
+            <h3>Profit : {{ this.money_a }}</h3>
         </div>
 
         <div class="kotak">
@@ -13,6 +14,8 @@
             <h3>Available : {{ this.slot_b }}</h3>
             <h3>Pending : {{ this.pending_b }}</h3>
             <h3>Occupied :{{ this.occ_b }}</h3>
+            <h3>Profit : {{ this.money_b }}</h3>
+
         </div>
     </div>
     
@@ -36,11 +39,11 @@ components : {viewqr},
             slot_a : 0,
             pending_a : 0,
             occ_a : 0,
+            money_a : 0,
             slot_b : 0,
             pending_b : 0,
             occ_b : 0,
-
-
+            money_b : 0,
             state :false
         }
     },
@@ -69,6 +72,7 @@ components : {viewqr},
                 this.slot_a = doc.data().slot
                 this.pending_a = doc.data().pending
                 this.occ_a = doc.data().occupied
+                this.money_a = doc.data().money
             });
         },
 
@@ -80,6 +84,7 @@ components : {viewqr},
                 this.slot_b = doc.data().slot
                 this.pending_b = doc.data().pending
                 this.occ_b = doc.data().occupied
+                this.money_b = doc.data().money
             });
         },
 

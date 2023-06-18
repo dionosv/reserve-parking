@@ -34,7 +34,6 @@ components : {viewqr, checkin},
                 this.state = true
                 this.getdata();
             }
-
             else{
                 router.push({name : 'home'})
             }

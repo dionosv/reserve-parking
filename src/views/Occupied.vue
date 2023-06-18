@@ -74,7 +74,7 @@ export default {
                 this.plat2 = doc.data().dataplate.plate.plat2
                 this.plat3 = doc.data().dataplate.plate.plat3
                 this.selected = doc.data().parking_detail.location
-                this.time = doc.data().parking_detail.last_accessed
+                this.time = doc.data().parking_detail.last_access
                 this.id = doc.id
             });
             this.render = true

@@ -2,7 +2,7 @@
 <div class="all" v-if="state">
     <div class="kotak" id="prompt" v-if="found">
         <div class="flex">
-            <h4>{{ this.message}}</h4>
+            <h4>{{ this.message }}</h4>
             <img src="@/assets/checked.png" alt="success">
         </div>
         <h2>
@@ -41,7 +41,7 @@ export default {
             displayname : null,
             found : false,
             currentTimestamp: null,
-            place : 'Mall A',
+            place : 'No Booking',
             pendingx : 0,
             occupiedx : 0,
             slotid : null,
@@ -49,7 +49,7 @@ export default {
             state : false,
             status : 0,
             message : 'Check In Succesfull',
-            waktuparkir : '',
+            waktuparkir : 'Now',
         }
     },
 
@@ -140,10 +140,18 @@ export default {
         async start_procedure(){
             if(this.validate_admin()){
                 await this.detailprocedure(this.userid)
+                console.log(this.status)
                 if(this.status == 1){
                     this.updateTimestamp();
                     this.parking_adjustment();
                     this.profile_adjustment();
+                }
+                else if(this.status == 2){
+                    this.message = 'Slot Occupied'
+                    this.updateTimestamp();
+                }
+                else{
+                    this.message = 'No Booking'
                 }
             }
         }

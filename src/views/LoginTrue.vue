@@ -19,6 +19,10 @@
                 </div>
 
                 <div id="details">
+                    <button type="button" class="btn btn-primary" @click="gotoapp" v-if="state">Go to App</button>
+                </div>
+
+                <div id="details">
                     <button type="button" class="btn btn-danger" @click="user_logout" v-if="state">Logout</button>
                 </div>
             </div>
@@ -31,6 +35,7 @@
 import { logout, getemail, checkstate } from './func/all';
 import { getDocs, query, collection, where} from "firebase/firestore";
 import {db} from'./func/firedata'
+import router from "../router"
 export default {
 
     data() {
@@ -59,6 +64,9 @@ export default {
             });
             this.render = true
         },
+        gotoapp(){
+            router.push({name : 'decide'})
+        }
     },
 
     mounted() {

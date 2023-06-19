@@ -4,10 +4,9 @@
     <h4>You already check in Reserve Parking</h4>
     <img :src="generateqr" alt=""/>
     <div class="detailsparkir">
-        <h3>{{ this.id }}</h3>
         <h3>Plate : {{ this.plat1 }} {{ this.plat2 }} {{ this.plat3 }}</h3>
         <h3>Location : {{ this.selected }}</h3>
-        <h3>{{ this.countdown }}</h3>
+        <h3>Duration : {{ this.countdown }}</h3>
         <h3>Rp {{ this.harga }}</h3>
     </div>
     

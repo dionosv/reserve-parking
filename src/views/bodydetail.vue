@@ -34,7 +34,7 @@
 
 <script>
 import { getemail, getuserid } from './func/all';
-import { getDocs, query, collection, where,doc, updateDoc} from "firebase/firestore";
+import { getDocs, query, collection, where,doc, onSnapshot, updateDoc} from "firebase/firestore";
 import {db} from'./func/firedata'
 export default {
     data() {
@@ -75,22 +75,23 @@ export default {
         async getslot() {
             const userdataRef = collection(db, "location");
             const q = query(userdataRef, where("nama", "==", this.selected));
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach((doc) => {
-                this.slot = doc.data().slot
-                this.pending = doc.data().pending
-                this.slotid = doc.id
+            
+            onSnapshot(q, (snapshot) => {
+                snapshot.forEach((doc) => {
+                this.slot = doc.data().slot;
+                this.pending = doc.data().pending;
+                this.slotid = doc.id;
+                });
+
+                this.slotrender = true;
+
+                if (this.slot <= 0) {
+                this.full = true;
+                } else {
+                this.full = false;
+                }
             });
-            this.slotrender = true
-
-            if(this.slot <= 0){
-                this.full = true
-            }
-            else if(this.slot >= 0){
-                this.full = false
-            }
         },
-
         okay(){
             if(this.plat1 != null && this.plat2 != null && this.plat3 != null && this.selected != null){
                     this.upload()

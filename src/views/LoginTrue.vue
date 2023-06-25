@@ -19,7 +19,7 @@
                 </div>
 
                 <div id="details">
-                    <button type="button" class="btn btn-primary" @click="gotoapp" v-if="state">Go to App</button>
+                    <button type="button" class="btn btn-primary" @click="gotoapp" v-if="state">Reserve Parking</button>
                 </div>
 
                 <div id="details">

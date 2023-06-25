@@ -3,7 +3,7 @@
         <img src="/src/assets/whitetext.png" class="foto">
         <h1>Welcome</h1>
         <h3>Parking experience a lot easier</h3>
-        <button @click="redirect" class="btn btn-primary">Go to App</button>
+        <button @click="redirect" class="btn btn-primary">Reserve Parking</button>
     </div>
     
 </template>
